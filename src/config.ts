@@ -1,5 +1,9 @@
+import * as dotenv from 'dotenv';
+
+dotenv.config({path: '../.env'});
+
 export let config = {
-  "token": "NzM0OTU3NjU3NDI0OTIwNTg4.XxZSBA.qdJ76q9Jm_A2aZA87rUdXwE7Zkw",
+  "token": process.env.TOKEN,
   "prefix": "?",
   "commands": [
     "testCommand"
