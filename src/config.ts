@@ -6,6 +6,7 @@ export let config = {
   "token": process.env.TOKEN,
   "prefix": "?",
   "commands": [
-    "testCommand"
+    "testCommand",
+    "play"
   ]
 }

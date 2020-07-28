@@ -2,9 +2,14 @@ import * as Discord from "discord.js";
 import * as ConfigFile from "./config";
 import { IBotCommand } from "./api";
 
+
 const client: Discord.Client = new Discord.Client();
 
 let commands: IBotCommand[] = [];
+
+
+// servers = {id: [link]}
+export let servers: {[id:string]:string[]} = {};
 
 loadCommands(`${__dirname}/commands`)
 
