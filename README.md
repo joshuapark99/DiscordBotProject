@@ -4,7 +4,7 @@
 TODO:
 
 # play music
-## get basic functionality to play music using a link (done/some errors)
+<p>get basic functionality to play music using a link (done/some errors)</p>
 <p>if there are no arguments after play command, don't join channel (done) <br>
 youtube link is provided then put song at end of queue (done)<br>
 youtube link is provided with a space and a 1 (ie ?play https://youtube.com/fakeLink 1), put song at beginning of queue  (done/ not tested)<br>
