@@ -9,7 +9,11 @@ let commands: IBotCommand[] = [];
 
 
 // servers = {id: [link]}
-export let servers: {[id:string]:string[]} = {};
+interface serverList {
+  [index:string]: { queue?: string[], dispatcher?: Discord.StreamDispatcher;}
+}
+export let servers = {} as serverList;
+
 
 loadCommands(`${__dirname}/commands`)
 

@@ -3,7 +3,9 @@ import {IBotCommand} from "../api";
 import * as YTDL from "ytdl-core";
 import {servers} from "../index"
 
-function Play(connection:Promise<Discord.VoiceConnection>, msgObject: Discord.Message) {
+function Play(connection:Discord.VoiceConnection, msgObject: Discord.Message) {
+  var server:{ queue?: string[], dispatcher?: Discord.StreamDispatcher} = servers[msgObject.guild.id];
+  server.dispatcher = connection.play(YTDL(server.queue[0], {filter: "audioonly"}));
 
 }
 
@@ -17,14 +19,15 @@ export default class play implements IBotCommand {
   isThisCommand(command: string): boolean {
     return command === this._command;
   }
-  runCommand(args: string[], msgObject: Discord.Message, client: Discord.Client): void {
+  async runCommand(args: string[], msgObject: Discord.Message, client: Discord.Client): Promise<void> {
     //Let us know it all went well
     if(msgObject.member.voice.channel) {
       if(!servers[msgObject.guild.id]) {
-        servers[msgObject.guild.id] = [];
+        servers[msgObject.guild.id] = {queue: []};
       }
         const connection = msgObject.member.voice.channel.join();
-        Play(connection,msgObject);
+        servers[msgObject.guild.id].queue.push(args[0])
+        Play(await connection,msgObject);
     }
     else {
       msgObject.reply("You must be in a voice channel");
