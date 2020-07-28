@@ -8,10 +8,25 @@ const client: Discord.Client = new Discord.Client();
 let commands: IBotCommand[] = [];
 
 
-// servers = {id: [link]}
+// Basically a datatype to hold a pseudo JSON object
+/*
+servers = {
+  __anIDNumber__ : {     // ID number is the id number of a specific server
+    queue: [],           // Will hold all the url's of youtube videos to play
+    dispatcher: Discord.StreamDispatcher
+  }
+}
+
+
+
+
+*/
 interface serverList {
   [index:string]: { queue?: string[], dispatcher?: Discord.StreamDispatcher;}
 }
+
+// Make it so that servers is kind of like a global variable that I can access in play.ts
+
 export let servers = {} as serverList;
 
 
