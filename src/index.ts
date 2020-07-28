@@ -16,10 +16,6 @@ servers = {
     dispatcher: Discord.StreamDispatcher
   }
 }
-
-
-
-
 */
 interface serverList {
   [index:string]: { queue?: string[], dispatcher?: Discord.StreamDispatcher;}
@@ -28,6 +24,11 @@ interface serverList {
 // Make it so that servers is kind of like a global variable that I can access in play.ts
 
 export let servers = {} as serverList;
+var looping:boolean = false;
+function changeLoop(value:boolean) {
+  looping = value;
+}
+export {looping, changeLoop}
 
 
 loadCommands(`${__dirname}/commands`)

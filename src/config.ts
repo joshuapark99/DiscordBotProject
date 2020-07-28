@@ -7,6 +7,7 @@ export let config = {
   "prefix": "?",
   "commands": [
     "testCommand",
-    "play"
+    "play",
+    "queue"
   ]
 }
