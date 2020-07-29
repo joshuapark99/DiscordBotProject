@@ -7,13 +7,13 @@ export let config = {
   "prefix": "?",
   "commands": [
     "testCommand",
-    "play",
+    "add",
     "queue",
     "loop",
     "pause",
     "resume",
     "skip",
     "amifunny",
-    "stop"
+    "reset"
   ]
 }

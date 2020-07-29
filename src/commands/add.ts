@@ -1,29 +1,33 @@
 import * as Discord from "discord.js";
-import {IBotCommand} from "../api";
-import * as YTDL from "ytdl-core-discord";
+import { IBotCommand } from "../api";
 import * as yt_search from "yt-search";
-import {servers} from "../index";
+import * as YTDL from "ytdl-core-discord";
+import { servers, looping, changeLoop } from "../index"
 
-async function parse(args: string[]) {
+// The main part that plays the youtube video after downloading with YTDL library
+async function addtoQueue(msgObject: Discord.Message, args: string[]) {
+  // check if argument is youtube link
+
   var patt = /http(?:s?):\/\/(?:www\.)?youtu(?:be\.com\/watch\?v=|\.be\/)([\w\-\_]*)(&(amp;)?‌​[\w\?‌​=]*)?/;
-  var link:string;
   if (patt.test(args[0])) {
     // it is a youtube link
-    link = args[0];
+    if (args[1] && args[1] == "1") {
+      servers[msgObject.guild.id].queue.unshift(args[0]);
+    } else {
+      servers[msgObject.guild.id].queue.push(args[0]);
+    }
   } else {
     //now search Youtube
     var searchQuery = args.join(' ');
-    // yt_search(searchQuery,(err,r) => {
-    //   const videos = r.videos;
-    //   const url = videos[0].url;
-    // });
-    const r = await yt_search(searchQuery);
-    link = r.videos[0].url;
+    yt_search(searchQuery, (err,r) => {
+      const videos = r.videos;
+      const url = videos[0].url;
+      servers[msgObject.guild.id].queue.push(url);
+    });
   }
-  return link;
 }
 
-async function Play(connection: Discord.VoiceConnection, msgObject: Discord.Message, url:string) {
+async function Play(connection: Discord.VoiceConnection, msgObject: Discord.Message) {
   var server: { queue?: string[], dispatcher?: Discord.StreamDispatcher } = servers[msgObject.guild.id];
 
   try {
@@ -32,12 +36,12 @@ async function Play(connection: Discord.VoiceConnection, msgObject: Discord.Mess
     //   console.error(e);
     // })
     // server.dispatcher = connection.play(stream);
-    server.dispatcher = connection.play(await YTDL(url, { filter: 'audioonly', quality: 'highest', highWaterMark: 1 << 25 }), { type: 'opus' });
+    server.dispatcher = connection.play(await YTDL(server.queue[0], { filter: 'audioonly', quality: 'highest', highWaterMark: 1 << 25 }), { type: 'opus' });
     //console.log(msgObject.guild.voice);
   }
   catch (error) {
     msgObject.reply("That isn't a working Youtube link, moving on");
-    //server.queue.shift();
+    server.queue.shift();
     if (!servers[msgObject.guild.id].queue[0]) {
       connection.disconnect();
 
@@ -71,17 +75,18 @@ async function Play(connection: Discord.VoiceConnection, msgObject: Discord.Mess
   })
 }
 
-export default class play implements IBotCommand {
+export default class add implements IBotCommand {
 
-  private readonly _command = "play"
+  private readonly _command = "add"
 
   help(): string {
-    return "uwu. This command isn't fuwwy impwemented";
+    return "Plays music when a link is sent, if something is already playing, put in queue";
   }
   isThisCommand(command: string): boolean {
     return command === this._command;
   }
   async runCommand(args: string[], msgObject: Discord.Message, client: Discord.Client): Promise<void> {
+    // if person who sent message is in a voice channel
     if (msgObject.member.voice.channel) {
       console.log("1")
       // Check if bot is already in a voice connection
@@ -98,13 +103,11 @@ export default class play implements IBotCommand {
 
         if (args[0]) { //used to check if theres a link
           console.log("4")
-          const connection = await msgObject.member.voice.channel.join();
-          // TODO: parse arguments and play
-          const url = parse(args);
-
-          console.log("5");
+          const connection = msgObject.member.voice.channel.join();
+          addtoQueue(msgObject, args);
+          console.log("5")
           // call function to download video from the queue
-          // Play(await connection, msgObject);
+          Play(await connection, msgObject);
         }
 
         else {
@@ -112,24 +115,21 @@ export default class play implements IBotCommand {
         }
       }
       else {
-        // if (!servers[msgObject.guild.id].dispatcher.paused) {
-        //   if (args[0]) {
-        //     // 'nother function'
-        //     msgObject.reply("Added a song to queue");
-        //   }
-        // } else {
-        //   servers[msgObject.guild.id].dispatcher.resume()
-        //   if (args[0]) {
-        //
-        //     msgObject.reply("Added a song to queue");
-        //   }
-        // }
-        // TODO: parse and then play using guild.voice.connection.play(ytdl)
+        if (!servers[msgObject.guild.id].dispatcher.paused) {
+          if (args[0]) {
+            addtoQueue(msgObject, args);
+            msgObject.reply("Added a song to queue, but is paused");
+          }
+        } else {
+          if (args[0]) {
+            addtoQueue(msgObject, args);
+            msgObject.reply("Added a song to queue");
+          }
+        }
       }
     } else {
       // you need to be in a voice channel
       msgObject.reply("You need to be in a voice channel");
     }
   }
-
 }
