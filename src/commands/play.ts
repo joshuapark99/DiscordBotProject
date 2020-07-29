@@ -15,10 +15,10 @@ async function Play(connection: Discord.VoiceConnection, msgObject: Discord.Mess
     //   console.error(e);
     // })
     // server.dispatcher = connection.play(stream);
-    server.dispatcher = connection.play(await YTDL(server.queue[0], {quality:'highest', highWaterMark:1<<25}), {type: 'opus'});
+    server.dispatcher = connection.play(await YTDL(server.queue[0], {filter:'audioonly',quality:'highest', highWaterMark:1<<25}), {type: 'opus'});
   }
   catch (error) {
-    msgObject.reply("That isn't a working Youtube link");
+    //msgObject.reply("That isn't a working Youtube link");
     if(!servers[msgObject.guild.id].queue[0]) {
       connection.disconnect();
       playing = false;
@@ -95,7 +95,17 @@ export default class play implements IBotCommand {
         }
       }
       else {
-        if (playing) {
+        if (!servers[msgObject.guild.id].dispatcher.paused) {
+          if (args[0]) {
+            if (args[1] && args[1] == "1") {
+              servers[msgObject.guild.id].queue.unshift(args[0]);
+            } else {
+              servers[msgObject.guild.id].queue.push(args[0]);
+            }
+            msgObject.reply("Added a song to queue");
+          }
+        } else {
+          servers[msgObject.guild.id].dispatcher.resume()
           if (args[0]) {
             if (args[1] && args[1] == "1") {
               servers[msgObject.guild.id].queue.unshift(args[0]);

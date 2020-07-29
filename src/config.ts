@@ -8,6 +8,11 @@ export let config = {
   "commands": [
     "testCommand",
     "play",
-    "queue"
+    "queue",
+    "loop",
+    "pause",
+    "resume",
+    "skip",
+    "amifunny"
   ]
 }
