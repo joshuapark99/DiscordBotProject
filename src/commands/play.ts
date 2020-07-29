@@ -5,7 +5,7 @@ import { servers, looping, changeLoop } from "../index"
 
 // The main part that plays the youtube video after downloading with YTDL library
 
-var playing: boolean = false;
+
 
 async function Play(connection: Discord.VoiceConnection, msgObject: Discord.Message) {
   var server: { queue?: string[], dispatcher?: Discord.StreamDispatcher } = servers[msgObject.guild.id];
@@ -16,12 +16,13 @@ async function Play(connection: Discord.VoiceConnection, msgObject: Discord.Mess
     // })
     // server.dispatcher = connection.play(stream);
     server.dispatcher = connection.play(await YTDL(server.queue[0], {filter:'audioonly',quality:'highest', highWaterMark:1<<25}), {type: 'opus'});
+    console.log(msgObject.guild.voice);
   }
   catch (error) {
     //msgObject.reply("That isn't a working Youtube link");
     if(!servers[msgObject.guild.id].queue[0]) {
       connection.disconnect();
-      playing = false;
+
     }
   }
 
@@ -36,7 +37,7 @@ async function Play(connection: Discord.VoiceConnection, msgObject: Discord.Mess
       Play(connection, msgObject);
     } else {
       connection.disconnect();
-      playing = false;
+
     }
 
   });
@@ -45,8 +46,9 @@ async function Play(connection: Discord.VoiceConnection, msgObject: Discord.Mess
     if (server.queue[0]) {
       Play(connection, msgObject);
     } else {
+      
       connection.disconnect();
-      playing = false;
+
     }
   })
 }
@@ -66,7 +68,8 @@ export default class play implements IBotCommand {
     if (msgObject.member.voice.channel) {
       console.log("1")
       // Check if bot is already in a voice connection
-      if (!msgObject.guild.voice) {
+
+      if (!msgObject.guild.voice || msgObject.guild.voice.channelID == null) {
         console.log("2")
         // if an entry for the server that the message was sent from is not present in the servers list
         if (!servers[msgObject.guild.id]) {
@@ -79,6 +82,7 @@ export default class play implements IBotCommand {
         if (args[0]) { //used to check if theres a link
           console.log("4")
           const connection = msgObject.member.voice.channel.join();
+
           // functionality to choose whether to add to beginning or end
           if (args[1] && args[1] == "1") {
             servers[msgObject.guild.id].queue.unshift(args[0]);
@@ -86,7 +90,7 @@ export default class play implements IBotCommand {
             servers[msgObject.guild.id].queue.push(args[0]);
           }
 
-          playing = true;
+
           console.log("5")
           // call function to download video from the queue
           Play(await connection, msgObject);

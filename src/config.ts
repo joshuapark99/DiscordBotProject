@@ -13,6 +13,7 @@ export let config = {
     "pause",
     "resume",
     "skip",
-    "amifunny"
+    "amifunny",
+    "stop"
   ]
 }
