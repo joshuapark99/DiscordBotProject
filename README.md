@@ -28,7 +28,7 @@ edit playlists<br>
 show playlists<br>
 spotify playlist<br></p>
 
-# (Brian wants to be referred to as brian-kun)
+
 # Super Smash Tracker
 <p>smash game recorder<br>
 matchup percentage<br></p>
